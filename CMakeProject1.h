@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <typeinfo>
+#include <cmath>
 using namespace std;
 /*
 Порядок операций:
@@ -183,13 +184,74 @@ private:
 		default:
 			throw "it's not int or double type";
 		}
+		
+	}
+	string Sinus(string dano) {
+		string tmp = dano;
+		int found = tmp.find(',');
+		while (found != -1) {
+			tmp.erase(found, 1);
+			found = tmp.find(',');
+		}
+
+		int ind_symbol = tmp.find('s');
+		if (ind_symbol == -1) throw "there is no s in Sinus operation";
+		int secondi;
+		double secondd;
+		switch (type)
+		{
+		case 1:
+			secondi = stoi(tmp.substr(ind_symbol + 1, tmp.length() - 1 - ind_symbol));
+			if (secondi == 0 || secondi == 180) return "0,";
+			if (secondi == 90 || secondi == 270) return "1,";
+			return to_string(round(sin(secondi*3.14/180))) + ",";
+			break;
+		case 2:
+			secondd = stod(tmp.substr(ind_symbol + 1, tmp.length() - 1 - ind_symbol));
+			if (secondd == 0 || secondd == 180) return "0,";
+			if (secondd == 90 || secondd == 270) return "1,";
+
+			return to_string(sin(secondd*3.14/180)) + ",";
+			break;
+		default:
+			throw "it's not int or double type";
+		}
+	}
+	string Cosinus(string dano) {
+		string tmp = dano;
+		int found = tmp.find(',');
+		while (found != -1) {
+			tmp.erase(found, 1);
+			found = tmp.find(',');
+		}
+		int ind_symbol = tmp.find('c');
+		if (ind_symbol == -1) throw "there is no c in Cosinus operation";
+		int secondi;
+		double secondd;
+		switch (type)
+		{
+		case 1:
+			secondi = stoi(tmp.substr(ind_symbol + 1, tmp.length() - 1 - ind_symbol));
+			if (secondi == 90 || secondi == 270) return "0,";
+			if (secondi == 0 || secondi == 180) return "1,";
+			return to_string(round(cos(secondi * 3.14 / 180))) + ",";
+			break;
+		case 2:
+			secondd = stod(tmp.substr(ind_symbol + 1, tmp.length() - 1 - ind_symbol));
+			if (secondd == 90 || secondd == 270) return "0,";
+			if (secondd == 0 || secondd == 180) return "1,";
+			return to_string(cos(secondd * 3.14 / 180)) + ",";
+			break;
+		default:
+			throw "it's not int or double type";
+		}
 	}
 	int priority(string goyda)
 	{
 		if (goyda == "(" || goyda == ")") return 0;
 		if (goyda == "+" || goyda == "-") return 1;
-		if (goyda == "*" || goyda == "/") return 2;
-		if (goyda == "^") return 3;
+		if (goyda == "*" || goyda == "/" ) return 2;
+		if (goyda == "^" || goyda == "c" || goyda == "s") return 3;
 		cout << "===" << goyda;
 		throw "isnt operator";
 	}
@@ -244,6 +306,8 @@ public:
 					}
 					case '+':
 					case '-':
+					case 'c':
+					case 's':
 					case '*':
 					case '/':
 					case '^': {
@@ -273,17 +337,18 @@ public:
 			stack.Pop();
 		}
 		//тут идет из постпрефиксной в стек и вычисления
+		cout << working << '\n';
 		checked = -1;
 		string second1;
 		string first1;
 		for (int i = 0; i < working.length(); i++) {
-			if (i > checked) {
+;			if (i > checked) {
 				if (working[i] >= '0' && working[i] <= '9') {
 
 					checked = i;
 					for (int j = i; j < working.length(); j++) {
 						if (working[j] >= '0' && working[j] <= '9') {
-							
+
 
 							checked = j;
 						}
@@ -294,28 +359,45 @@ public:
 				}
 				else {
 					checked = i;
-					second1 = stack.Top();
-					stack.Pop();
-					first1 = stack.Top();
-					stack.Pop();
-					switch (working[i])
-					{
-					case '+':
-						stack.Push(Plus(first1 + "+" + second1));
-						break;
-					case '-':
-						stack.Push(Minus(first1 + "-" + second1));
-						break;
-					case '*':
-						stack.Push(Multiply(first1 + "*" + second1));
-						break;
-					case '/':
-						stack.Push(Divide(first1 + "/" + second1));
-						break;
-					case '^':
-						stack.Push(Exponentiation(first1 + "^" + second1));
-						break;
-					default: throw "something isnt good";
+					if (working[i] != 'c' && working[i] != 's') {
+						second1 = stack.Top();
+						stack.Pop();
+						first1 = stack.Top();
+						stack.Pop();
+						switch (working[i])
+						{
+						case '+':
+							stack.Push(Plus(first1 + "+" + second1));
+							break;
+						case '-':
+							stack.Push(Minus(first1 + "-" + second1));
+							break;
+						case '*':
+							stack.Push(Multiply(first1 + "*" + second1));
+							break;
+						case '/':
+							stack.Push(Divide(first1 + "/" + second1));
+							break;
+						case '^':
+							stack.Push(Exponentiation(first1 + "^" + second1));
+							break;
+						default: throw "something isnt good";
+						}
+					}
+					else {
+						
+						second1 = stack.Top();
+						stack.Pop();
+						switch (working[i])
+						{
+						case 's':
+							stack.Push(Sinus("s" + second1));
+							break;
+						case 'c':
+							stack.Push(Cosinus("c" + second1));
+							break;
+						default: throw "something isnt good";
+						}
 					}
 				}
 			}

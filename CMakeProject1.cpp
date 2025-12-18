@@ -14,8 +14,7 @@ int main()
 	string ab = "3 * (4 + 5) / 3 + 1";  // пример нестерова
 	Calculator(ab, goyd);
 	cout << goyda << "\n\n\n" << goyd << "\n\n\n";
-	string abcd;
-	cin >> abcd;
+	string abcd = "45^2+13*(s78+83*2)";
 	Calculator(abcd, goyd);
 	cout << goyd;
 	return 0;
